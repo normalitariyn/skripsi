@@ -7,10 +7,8 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
-from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
-from math import sqrt
+from sklearn.metrics import mean_absolute_percentage_error
 import matplotlib.pyplot as plt
-import pickle
 
 st.set_page_config(
     page_title="Prediksi ISPU DKI Jakarta",
