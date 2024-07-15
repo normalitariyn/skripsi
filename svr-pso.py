@@ -7,8 +7,10 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
-from sklearn.metrics import mean_absolute_percentage_error
+from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
+from math import sqrt
 import matplotlib.pyplot as plt
+import plotly.graph_objs as go
 
 st.set_page_config(
     page_title="Prediksi ISPU DKI Jakarta",
@@ -36,11 +38,11 @@ with st.container():
             [
                 "Home",
                 "Data",
-                "Prepocessing",
+                "Preprocessing",
                 "Modeling",
                 "Best Parameters",
                 "Implementation",
-                "Tentang Kami",
+                "About Me",
             ],
             icons=[
                 "house",
@@ -143,7 +145,7 @@ with st.container():
         st.subheader("Plot NO2")
         st.pyplot(plot_parameter(df_resample, "no2", "blue"))
 
-    elif selected == "Prepocessing":
+    elif selected == "Preprocessing":
         # MEAN IMPUTATION
         st.subheader("""Mean Imputation""")
         df = pd.read_csv(
@@ -187,7 +189,7 @@ with st.container():
             X_pm10, y_pm10 = split_sequence(imports_pm10, kolom)
             print(X_pm10.shape, y_pm10.shape)
             shapeX_pm10 = X_pm10.shape
-            dfX_pm10 = pd.DataFrame(X_pm10)
+            dfX_pm10 = pd.DataFrame(X_pm10, columns=["t-4", "t-3", "t-2", "t-1"])
             dfy_pm10 = pd.DataFrame(y_pm10, columns=["Xt"])
             df_pm10 = pd.concat((dfX_pm10, dfy_pm10), axis=1)
             st.dataframe(df_pm10, width=600)
@@ -196,7 +198,7 @@ with st.container():
             X_so2, y_so2 = split_sequence(imports_so2, kolom)
             print(X_so2.shape, y_so2.shape)
             shapeX_so2 = X_so2.shape
-            dfX_so2 = pd.DataFrame(X_so2)
+            dfX_so2 = pd.DataFrame(X_so2, columns=["t-4", "t-3", "t-2", "t-1"])
             dfy_so2 = pd.DataFrame(y_so2, columns=["Xt"])
             df_so2 = pd.concat((dfX_so2, dfy_so2), axis=1)
             st.dataframe(df_so2, width=600)
@@ -205,7 +207,7 @@ with st.container():
             X_co, y_co = split_sequence(imports_co, kolom)
             print(X_co.shape, y_co.shape)
             shapeX_co = X_co.shape
-            dfX_co = pd.DataFrame(X_co)
+            dfX_co = pd.DataFrame(X_co, columns=["t-4", "t-3", "t-2", "t-1"])
             dfy_co = pd.DataFrame(y_co, columns=["Xt"])
             df_co = pd.concat((dfX_co, dfy_co), axis=1)
             st.dataframe(df_co, width=600)
@@ -214,7 +216,7 @@ with st.container():
             X_no2, y_no2 = split_sequence(imports_no2, kolom)
             print(X_no2.shape, y_no2.shape)
             shapeX_no2 = X_no2.shape
-            dfX_no2 = pd.DataFrame(X_no2)
+            dfX_no2 = pd.DataFrame(X_no2, columns=["t-4", "t-3", "t-2", "t-1"])
             dfy_no2 = pd.DataFrame(y_no2, columns=["Xt"])
             df_no2 = pd.concat((dfX_no2, dfy_no2), axis=1)
             st.dataframe(df_no2, width=600)
@@ -223,7 +225,7 @@ with st.container():
             X_o3, y_o3 = split_sequence(imports_o3, kolom)
             print(X_o3.shape, y_o3.shape)
             shapeX_o3 = X_o3.shape
-            dfX_o3 = pd.DataFrame(X_o3)
+            dfX_o3 = pd.DataFrame(X_o3, columns=["t-4", "t-3", "t-2", "t-1"])
             dfy_o3 = pd.DataFrame(y_o3, columns=["Xt"])
             df_o3 = pd.concat((dfX_o3, dfy_o3), axis=1)
             st.dataframe(df_o3, width=600)
@@ -452,9 +454,38 @@ with st.container():
                     st.subheader("Prediksi Data Testing")
                     st.write(hasil_pm10)
 
-                    # Menampilkan plot antara data aktual dan data prediksi pada data test
+                    # # Menampilkan plot antara data aktual dan data prediksi pada data test
+                    # st.subheader("Plotting Data Aktual VS Data Prediksi - Data Testing")
+                    # st.line_chart(hasil_pm10)
+
+                    # plotting data
                     st.subheader("Plotting Data Aktual VS Data Prediksi - Data Testing")
-                    st.line_chart(hasil_pm10)
+                    fig = go.Figure()
+                    # Menambahkan data aktual dengan warna biru tua
+                    fig.add_trace(
+                        go.Scatter(
+                            x=hasil_pm10.index,
+                            y=hasil_pm10["Data Aktual PM10 (Testing)"],
+                            mode="lines",
+                            name="Data Aktual",
+                            line=dict(color="darkblue"),
+                        )
+                    )
+                    # Menambahkan data prediksi dengan warna merah
+                    fig.add_trace(
+                        go.Scatter(
+                            x=hasil_pm10.index,
+                            y=hasil_pm10["Data Prediksi PM10 (Testing)"],
+                            mode="lines",
+                            name="Data Prediksi",
+                            line=dict(color="red"),
+                        )
+                    )
+                    # Mengatur layout figure untuk memperbesar ukuran grafik
+                    fig.update_layout(
+                        width=800, height=600  # Lebar figure  # Tinggi figure
+                    )
+                    st.plotly_chart(fig, use_container_width=False)
 
                     # Menampilkan matriks evaluasi
                     st.subheader("Metriks Evaluasi Data Testing")
@@ -3068,7 +3099,9 @@ with st.container():
                 training_label = np.array(training_label).reshape(-1, 1)
 
                 # Membuat model SVR
-                regresor = SVR(kernel="rbf", C=10, gamma=0.01, epsilon=0.010076808)
+                regresor = SVR(
+                    kernel="rbf", gamma=0.999504820023307, C=0.01, epsilon=0.1
+                )
                 regresor.fit(training, training_label.ravel())
 
                 st.subheader("Implementasi Peramalan SO2")
@@ -3244,7 +3277,9 @@ with st.container():
                 training_label = np.array(training_label).reshape(-1, 1)
 
                 # Membuat model SVR
-                regresor = SVR(kernel="rbf", C=10, gamma=0.01, epsilon=0.010076808)
+                regresor = SVR(
+                    kernel="rbf", gamma=100, C=0.1, epsilon=0.0184040563866588
+                )
                 regresor.fit(training, training_label.ravel())
 
                 st.subheader("Implementasi Peramalan CO")
@@ -3422,7 +3457,7 @@ with st.container():
                 training_label = np.array(training_label).reshape(-1, 1)
 
                 # Membuat model SVR
-                regresor = SVR(kernel="rbf", C=10, gamma=0.01, epsilon=0.010076808)
+                regresor = SVR(kernel="linear", C=10, epsilon=0.0105339836281039)
                 regresor.fit(training, training_label.ravel())
 
                 st.subheader("Implementasi Peramalan O3")
@@ -3600,7 +3635,9 @@ with st.container():
                 training_label = np.array(training_label).reshape(-1, 1)
 
                 # Membuat model SVR
-                regresor = SVR(kernel="rbf", C=10, gamma=0.01, epsilon=0.010076808)
+                regresor = SVR(
+                    kernel="linear", C=5.06915442747395, epsilon=0.0946570714100452
+                )
                 regresor.fit(training, training_label.ravel())
 
                 st.subheader("Implementasi Peramalan NO2")
@@ -3740,5 +3777,5 @@ with st.container():
                                                 f"Hari ke-{day_index + 1}: {denormalized_predictions[j]:.1f}"
                                             )
 
-    elif selected == "Tentang Kami":
+    elif selected == "About Me":
         st.write("Normalita Eka Ariyanti \n (200411100084) \n Teknik Informatika")
