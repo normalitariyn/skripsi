@@ -7,7 +7,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVR
-from sklearn.metrics import mean_absolute_percentage_error
+from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
 from math import sqrt
 import matplotlib.pyplot as plt
 import plotly.graph_objs as go
@@ -2784,111 +2784,6 @@ with st.container():
         with tabs[0]:
             with st.form("Implementasi_pm10"):
 
-                # # univariate PM10
-                # X_pm10, y_pm10 = split_sequence(imports_pm10, kolom)
-                # print(X_pm10.shape, y_pm10.shape)
-                # shapeX_pm10 = X_pm10.shape
-                # dfX_pm10 = pd.DataFrame(X_pm10)
-                # dfy_pm10 = pd.DataFrame(y_pm10, columns=["Xt"])
-                # df_pm10 = pd.concat((dfX_pm10, dfy_pm10), axis=1)
-
-                # # standardisasi pm10
-                # scalerX = StandardScaler()
-                # scalerY = StandardScaler()
-                # scaledX_pm10 = scalerX.fit_transform(dfX_pm10)
-                # scaledY_pm10 = scalerY.fit_transform(dfy_pm10)
-                # features_namesX_pm10 = dfX_pm10.columns.copy()
-                # features_namesy_pm10 = dfy_pm10.columns.copy()
-                # scaled_featuresX_pm10 = pd.DataFrame(
-                #     scaledX_pm10, columns=features_namesX_pm10
-                # )
-                # scaled_featuresY_pm10 = pd.DataFrame(
-                #     scaledY_pm10, columns=features_namesy_pm10
-                # )
-
-                # # pembagian dataset pm10
-                # training, test = train_test_split(
-                #     scaled_featuresX_pm10, test_size=0.1, random_state=0, shuffle=False
-                # )
-                # training_label, test_label = train_test_split(
-                #     scaled_featuresY_pm10, test_size=0.1, random_state=0, shuffle=False
-                # )
-
-                # # Mengubah training_label pm10 ke bentuk array
-                # training_label = np.array(training_label).reshape(-1, 1)
-
-                # # Membuat model SVR
-                # regresor = SVR(kernel="rbf", C=10, gamma=0.01, epsilon=0.010076808)
-                # regresor.fit(training, training_label.ravel())
-
-                # st.subheader("Implementasi Peramalan PM10")
-                # v1 = st.number_input(
-                #     "Masukkan kadar konsentrasi PM10 pada 4 hari sebelumnya"
-                # )
-                # v2 = st.number_input(
-                #     "Masukkan kadar konsentrasi PM10 pada 3 hari sebelumnya"
-                # )
-                # v3 = st.number_input(
-                #     "Masukkan kadar konsentrasi PM10 pada 2 hari sebelumnya"
-                # )
-                # v4 = st.number_input(
-                #     "Masukkan kadar konsentrasi PM10 pada 1 hari sebelumnya"
-                # )
-
-                # periode_options = {
-                #     "7 Hari": 7,
-                #     "2 Minggu": 14,
-                #     "1 Bulan": 30,
-                #     "3 Bulan": 90,
-                #     "6 Bulan": 180,
-                #     "1 Tahun": 365,
-                # }
-
-                # periode = st.selectbox(
-                #     "Pilih Periode Peramalan", list(periode_options.keys())
-                # )
-
-                # # submit inputan
-                # prediksi = st.form_submit_button("Submit")
-                # if prediksi:
-                #     inputs = np.array([v1, v2, v3, v4]).reshape(1, -1)
-
-                #     # normalisasi data input
-                #     scaler_input = StandardScaler().fit(dfX_pm10)
-                #     normalized_input = scaler_input.transform(inputs)
-
-                #     # # fit model svr ke data input
-                #     # input_pred = regresor.predict(normalized_input)
-
-                #     # # denormalisasi data input
-                #     # denormalized_pred_pm10 = scaler.inverse_transform(
-                #     #     input_pred.reshape(1, -1)
-                #     # )
-                #     # Prediction for the selected period
-                #     days_to_predict = periode_options[periode]
-                #     predictions = []
-                #     current_input = normalized_input
-
-                #     for day in range(days_to_predict):
-                #         # Predict the next day
-                #         next_pred = regresor.predict(current_input.reshape(1, -1))
-                #         predictions.append(next_pred[0])
-
-                #         # Prepare input for the next day
-                #         current_input = np.append(
-                #             current_input[:, 1:], next_pred
-                #         ).reshape(1, -1)
-
-                #     # Denormalize predictions
-                #     denormalized_predictions = scalerY.inverse_transform(
-                #         np.array(predictions).reshape(-1, 1)
-                #     ).flatten()
-
-                #     # Display predictions
-                #     st.header(f"Hasil Peramalan PM10 untuk {periode}")
-                #     for i, prediction in enumerate(denormalized_predictions, start=1):
-                #         st.info(f"Hari ke-{i}: {prediction:.1f}")
-
                 # univariate PM10
                 X_pm10, y_pm10 = split_sequence(imports_pm10, kolom)
                 shapeX_pm10 = X_pm10.shape
@@ -2940,12 +2835,8 @@ with st.container():
                 )
 
                 periode_options = {
+                    "3 Hari": 3,
                     "7 Hari": 7,
-                    "2 Minggu": 14,
-                    "1 Bulan": 30,
-                    "3 Bulan": 90,
-                    "6 Bulan": 180,
-                    "1 Tahun": 365,
                 }
 
                 periode = st.selectbox(
@@ -2982,85 +2873,12 @@ with st.container():
 
                     # Display predictions
                     st.header(f"Hasil Peramalan PM10 untuk {periode}")
-                    if periode in ["7 Hari", "2 Minggu"]:
+                    if periode in ["7 Hari", "3 Hari"]:
                         for i, prediction in enumerate(
                             denormalized_predictions, start=1
                         ):
                             st.write(f"Hari ke-{i}: {prediction:.1f}")
-                    elif periode == "1 Bulan":
-                        num_weeks = min(
-                            4, len(denormalized_predictions) // 7
-                        )  # Hitung jumlah minggu yang dapat ditampilkan
-                        cols = st.columns(
-                            num_weeks
-                        )  # Buat kolom sesuai dengan jumlah minggu yang akan ditampilkan
 
-                        for i in range(num_weeks):
-                            with cols[i]:
-                                st.title(f"Minggu ke-{i + 1}")
-                                start_index = i * 7
-                                end_index = min(
-                                    start_index + 7, len(denormalized_predictions)
-                                )
-                                for j in range(start_index, end_index):
-                                    st.write(
-                                        f"Hari ke-{j + 1}: {denormalized_predictions[j]:.1f}"
-                                    )
-
-                    elif periode == "3 Bulan":
-                        col1, col2, col3 = st.columns(3)
-                        cols = [col1, col2, col3]
-                        for i in range(0, 90, 30):
-                            with cols[i // 30]:
-                                st.title(f"Bulan ke-{i//30 + 1}")
-                                for j in range(i, i + 30):
-                                    if j < len(denormalized_predictions):
-                                        st.write(
-                                            f"Hari ke-{j+1}: {denormalized_predictions[j]:.1f}"
-                                        )
-                    elif periode == "6 Bulan":
-                        col1, col2, col3 = st.columns(3)
-                        col4, col5, col6 = st.columns(3)
-                        cols = [col1, col2, col3, col4, col5, col6]
-                        for i in range(0, 180, 30):
-                            with cols[i // 30]:
-                                st.title(f"Bulan ke-{i//30 + 1}")
-                                for j in range(i, i + 30):
-                                    if j < len(denormalized_predictions):
-                                        st.write(
-                                            f"Hari ke-{j+1}: {denormalized_predictions[j]:.1f}"
-                                        )
-                    elif periode == "1 Tahun":
-                        cols_top = st.columns(6)
-                        cols_bottom = st.columns(6)
-
-                        for i in range(
-                            0, 360, 30
-                        ):  # Tampilkan hanya 12 bulan (360 hari)
-                            month_index = i // 30
-                            if month_index < 6:
-                                with cols_top[month_index]:
-                                    st.subheader(f"Bulan ke-{month_index + 1}")
-                                    for j in range(i, i + 30):
-                                        day_index = (
-                                            j % 30
-                                        )  # Hitung indeks hari dalam bulan
-                                        if j < len(denormalized_predictions):
-                                            st.write(
-                                                f"Hari ke-{day_index + 1}: {denormalized_predictions[j]:.1f}"
-                                            )
-                            else:
-                                bottom_index = month_index - 6
-                                with cols_bottom[bottom_index]:
-                                    st.subheader(f"Bulan ke-{month_index + 1}")
-                                    for j in range(i, i + 30):
-                                        day_index = (
-                                            j % 30
-                                        )  # Hitung indeks hari dalam bulan
-                                        if j < len(denormalized_predictions):
-                                            st.write(
-                                                f"Hari ke-{day_index + 1}: {denormalized_predictions[j]:.1f}"
-                                            )
         # SO2
         with tabs[1]:
 
@@ -3119,12 +2937,8 @@ with st.container():
                 )
 
                 periode_options = {
+                    "3 Hari": 3,
                     "7 Hari": 7,
-                    "2 Minggu": 14,
-                    "1 Bulan": 30,
-                    "3 Bulan": 90,
-                    "6 Bulan": 180,
-                    "1 Tahun": 365,
                 }
 
                 periode = st.selectbox(
@@ -3161,85 +2975,12 @@ with st.container():
 
                     # Display predictions
                     st.header(f"Hasil Peramalan SO2 untuk {periode}")
-                    if periode in ["7 Hari", "2 Minggu"]:
+                    if periode in ["7 Hari", "3 Hari"]:
                         for i, prediction in enumerate(
                             denormalized_predictions, start=1
                         ):
                             st.write(f"Hari ke-{i}: {prediction:.1f}")
-                    elif periode == "1 Bulan":
-                        num_weeks = min(
-                            4, len(denormalized_predictions) // 7
-                        )  # Hitung jumlah minggu yang dapat ditampilkan
-                        cols = st.columns(
-                            num_weeks
-                        )  # Buat kolom sesuai dengan jumlah minggu yang akan ditampilkan
 
-                        for i in range(num_weeks):
-                            with cols[i]:
-                                st.title(f"Minggu ke-{i + 1}")
-                                start_index = i * 7
-                                end_index = min(
-                                    start_index + 7, len(denormalized_predictions)
-                                )
-                                for j in range(start_index, end_index):
-                                    st.write(
-                                        f"Hari ke-{j + 1}: {denormalized_predictions[j]:.1f}"
-                                    )
-
-                    elif periode == "3 Bulan":
-                        col1, col2, col3 = st.columns(3)
-                        cols = [col1, col2, col3]
-                        for i in range(0, 90, 30):
-                            with cols[i // 30]:
-                                st.title(f"Bulan ke-{i//30 + 1}")
-                                for j in range(i, i + 30):
-                                    if j < len(denormalized_predictions):
-                                        st.write(
-                                            f"Hari ke-{j+1}: {denormalized_predictions[j]:.1f}"
-                                        )
-                    elif periode == "6 Bulan":
-                        col1, col2, col3 = st.columns(3)
-                        col4, col5, col6 = st.columns(3)
-                        cols = [col1, col2, col3, col4, col5, col6]
-                        for i in range(0, 180, 30):
-                            with cols[i // 30]:
-                                st.title(f"Bulan ke-{i//30 + 1}")
-                                for j in range(i, i + 30):
-                                    if j < len(denormalized_predictions):
-                                        st.write(
-                                            f"Hari ke-{j+1}: {denormalized_predictions[j]:.1f}"
-                                        )
-                    elif periode == "1 Tahun":
-                        cols_top = st.columns(6)
-                        cols_bottom = st.columns(6)
-
-                        for i in range(
-                            0, 360, 30
-                        ):  # Tampilkan hanya 12 bulan (360 hari)
-                            month_index = i // 30
-                            if month_index < 6:
-                                with cols_top[month_index]:
-                                    st.subheader(f"Bulan ke-{month_index + 1}")
-                                    for j in range(i, i + 30):
-                                        day_index = (
-                                            j % 30
-                                        )  # Hitung indeks hari dalam bulan
-                                        if j < len(denormalized_predictions):
-                                            st.write(
-                                                f"Hari ke-{day_index + 1}: {denormalized_predictions[j]:.1f}"
-                                            )
-                            else:
-                                bottom_index = month_index - 6
-                                with cols_bottom[bottom_index]:
-                                    st.subheader(f"Bulan ke-{month_index + 1}")
-                                    for j in range(i, i + 30):
-                                        day_index = (
-                                            j % 30
-                                        )  # Hitung indeks hari dalam bulan
-                                        if j < len(denormalized_predictions):
-                                            st.write(
-                                                f"Hari ke-{day_index + 1}: {denormalized_predictions[j]:.1f}"
-                                            )
         # CO
         with tabs[2]:
             with st.form("Implementasi_co"):
@@ -3297,12 +3038,8 @@ with st.container():
                 )
 
                 periode_options = {
+                    "3 Hari": 3,
                     "7 Hari": 7,
-                    "2 Minggu": 14,
-                    "1 Bulan": 30,
-                    "3 Bulan": 90,
-                    "6 Bulan": 180,
-                    "1 Tahun": 365,
                 }
 
                 periode = st.selectbox(
@@ -3339,85 +3076,11 @@ with st.container():
 
                     # Display predictions
                     st.header(f"Hasil Peramalan CO untuk {periode}")
-                    if periode in ["7 Hari", "2 Minggu"]:
+                    if periode in ["7 Hari", "3 Hari"]:
                         for i, prediction in enumerate(
                             denormalized_predictions, start=1
                         ):
                             st.write(f"Hari ke-{i}: {prediction:.1f}")
-                    elif periode == "1 Bulan":
-                        num_weeks = min(
-                            4, len(denormalized_predictions) // 7
-                        )  # Hitung jumlah minggu yang dapat ditampilkan
-                        cols = st.columns(
-                            num_weeks
-                        )  # Buat kolom sesuai dengan jumlah minggu yang akan ditampilkan
-
-                        for i in range(num_weeks):
-                            with cols[i]:
-                                st.title(f"Minggu ke-{i + 1}")
-                                start_index = i * 7
-                                end_index = min(
-                                    start_index + 7, len(denormalized_predictions)
-                                )
-                                for j in range(start_index, end_index):
-                                    st.write(
-                                        f"Hari ke-{j + 1}: {denormalized_predictions[j]:.1f}"
-                                    )
-
-                    elif periode == "3 Bulan":
-                        col1, col2, col3 = st.columns(3)
-                        cols = [col1, col2, col3]
-                        for i in range(0, 90, 30):
-                            with cols[i // 30]:
-                                st.title(f"Bulan ke-{i//30 + 1}")
-                                for j in range(i, i + 30):
-                                    if j < len(denormalized_predictions):
-                                        st.write(
-                                            f"Hari ke-{j+1}: {denormalized_predictions[j]:.1f}"
-                                        )
-                    elif periode == "6 Bulan":
-                        col1, col2, col3 = st.columns(3)
-                        col4, col5, col6 = st.columns(3)
-                        cols = [col1, col2, col3, col4, col5, col6]
-                        for i in range(0, 180, 30):
-                            with cols[i // 30]:
-                                st.title(f"Bulan ke-{i//30 + 1}")
-                                for j in range(i, i + 30):
-                                    if j < len(denormalized_predictions):
-                                        st.write(
-                                            f"Hari ke-{j+1}: {denormalized_predictions[j]:.1f}"
-                                        )
-                    elif periode == "1 Tahun":
-                        cols_top = st.columns(6)
-                        cols_bottom = st.columns(6)
-
-                        for i in range(
-                            0, 360, 30
-                        ):  # Tampilkan hanya 12 bulan (360 hari)
-                            month_index = i // 30
-                            if month_index < 6:
-                                with cols_top[month_index]:
-                                    st.subheader(f"Bulan ke-{month_index + 1}")
-                                    for j in range(i, i + 30):
-                                        day_index = (
-                                            j % 30
-                                        )  # Hitung indeks hari dalam bulan
-                                        if j < len(denormalized_predictions):
-                                            st.write(
-                                                f"Hari ke-{day_index + 1}: {denormalized_predictions[j]:.1f}"
-                                            )
-                            else:
-                                bottom_index = month_index - 6
-                                with cols_bottom[bottom_index]:
-                                    st.subheader(f"Bulan ke-{month_index + 1}")
-                                    for j in range(i, i + 30):
-                                        day_index = (
-                                            j % 30
-                                        )  # Hitung indeks hari dalam bulan
-                                        if j < len(denormalized_predictions):
-                                            st.write(
-                                                f"Hari ke-{day_index + 1}: {denormalized_predictions[j]:.1f}"
-                                            )
 
         # O3
         with tabs[3]:
@@ -3475,12 +3138,8 @@ with st.container():
                 )
 
                 periode_options = {
+                    "3 Hari": 3,
                     "7 Hari": 7,
-                    "2 Minggu": 14,
-                    "1 Bulan": 30,
-                    "3 Bulan": 90,
-                    "6 Bulan": 180,
-                    "1 Tahun": 365,
                 }
 
                 periode = st.selectbox(
@@ -3517,85 +3176,11 @@ with st.container():
 
                     # Display predictions
                     st.header(f"Hasil Peramalan O3 untuk {periode}")
-                    if periode in ["7 Hari", "2 Minggu"]:
+                    if periode in ["7 Hari", "3 Hari"]:
                         for i, prediction in enumerate(
                             denormalized_predictions, start=1
                         ):
                             st.write(f"Hari ke-{i}: {prediction:.1f}")
-                    elif periode == "1 Bulan":
-                        num_weeks = min(
-                            4, len(denormalized_predictions) // 7
-                        )  # Hitung jumlah minggu yang dapat ditampilkan
-                        cols = st.columns(
-                            num_weeks
-                        )  # Buat kolom sesuai dengan jumlah minggu yang akan ditampilkan
-
-                        for i in range(num_weeks):
-                            with cols[i]:
-                                st.title(f"Minggu ke-{i + 1}")
-                                start_index = i * 7
-                                end_index = min(
-                                    start_index + 7, len(denormalized_predictions)
-                                )
-                                for j in range(start_index, end_index):
-                                    st.write(
-                                        f"Hari ke-{j + 1}: {denormalized_predictions[j]:.1f}"
-                                    )
-
-                    elif periode == "3 Bulan":
-                        col1, col2, col3 = st.columns(3)
-                        cols = [col1, col2, col3]
-                        for i in range(0, 90, 30):
-                            with cols[i // 30]:
-                                st.title(f"Bulan ke-{i//30 + 1}")
-                                for j in range(i, i + 30):
-                                    if j < len(denormalized_predictions):
-                                        st.write(
-                                            f"Hari ke-{j+1}: {denormalized_predictions[j]:.1f}"
-                                        )
-                    elif periode == "6 Bulan":
-                        col1, col2, col3 = st.columns(3)
-                        col4, col5, col6 = st.columns(3)
-                        cols = [col1, col2, col3, col4, col5, col6]
-                        for i in range(0, 180, 30):
-                            with cols[i // 30]:
-                                st.title(f"Bulan ke-{i//30 + 1}")
-                                for j in range(i, i + 30):
-                                    if j < len(denormalized_predictions):
-                                        st.write(
-                                            f"Hari ke-{j+1}: {denormalized_predictions[j]:.1f}"
-                                        )
-                    elif periode == "1 Tahun":
-                        cols_top = st.columns(6)
-                        cols_bottom = st.columns(6)
-
-                        for i in range(
-                            0, 360, 30
-                        ):  # Tampilkan hanya 12 bulan (360 hari)
-                            month_index = i // 30
-                            if month_index < 6:
-                                with cols_top[month_index]:
-                                    st.subheader(f"Bulan ke-{month_index + 1}")
-                                    for j in range(i, i + 30):
-                                        day_index = (
-                                            j % 30
-                                        )  # Hitung indeks hari dalam bulan
-                                        if j < len(denormalized_predictions):
-                                            st.write(
-                                                f"Hari ke-{day_index + 1}: {denormalized_predictions[j]:.1f}"
-                                            )
-                            else:
-                                bottom_index = month_index - 6
-                                with cols_bottom[bottom_index]:
-                                    st.subheader(f"Bulan ke-{month_index + 1}")
-                                    for j in range(i, i + 30):
-                                        day_index = (
-                                            j % 30
-                                        )  # Hitung indeks hari dalam bulan
-                                        if j < len(denormalized_predictions):
-                                            st.write(
-                                                f"Hari ke-{day_index + 1}: {denormalized_predictions[j]:.1f}"
-                                            )
 
         # NO2
         with tabs[4]:
@@ -3655,12 +3240,8 @@ with st.container():
                 )
 
                 periode_options = {
+                    "3 Hari": 3,
                     "7 Hari": 7,
-                    "2 Minggu": 14,
-                    "1 Bulan": 30,
-                    "3 Bulan": 90,
-                    "6 Bulan": 180,
-                    "1 Tahun": 365,
                 }
 
                 periode = st.selectbox(
@@ -3697,85 +3278,11 @@ with st.container():
 
                     # Display predictions
                     st.header(f"Hasil Peramalan NO2 untuk {periode}")
-                    if periode in ["7 Hari", "2 Minggu"]:
+                    if periode in ["7 Hari", "3 Hari"]:
                         for i, prediction in enumerate(
                             denormalized_predictions, start=1
                         ):
                             st.write(f"Hari ke-{i}: {prediction:.1f}")
-                    elif periode == "1 Bulan":
-                        num_weeks = min(
-                            4, len(denormalized_predictions) // 7
-                        )  # Hitung jumlah minggu yang dapat ditampilkan
-                        cols = st.columns(
-                            num_weeks
-                        )  # Buat kolom sesuai dengan jumlah minggu yang akan ditampilkan
-
-                        for i in range(num_weeks):
-                            with cols[i]:
-                                st.title(f"Minggu ke-{i + 1}")
-                                start_index = i * 7
-                                end_index = min(
-                                    start_index + 7, len(denormalized_predictions)
-                                )
-                                for j in range(start_index, end_index):
-                                    st.write(
-                                        f"Hari ke-{j + 1}: {denormalized_predictions[j]:.1f}"
-                                    )
-
-                    elif periode == "3 Bulan":
-                        col1, col2, col3 = st.columns(3)
-                        cols = [col1, col2, col3]
-                        for i in range(0, 90, 30):
-                            with cols[i // 30]:
-                                st.title(f"Bulan ke-{i//30 + 1}")
-                                for j in range(i, i + 30):
-                                    if j < len(denormalized_predictions):
-                                        st.write(
-                                            f"Hari ke-{j+1}: {denormalized_predictions[j]:.1f}"
-                                        )
-                    elif periode == "6 Bulan":
-                        col1, col2, col3 = st.columns(3)
-                        col4, col5, col6 = st.columns(3)
-                        cols = [col1, col2, col3, col4, col5, col6]
-                        for i in range(0, 180, 30):
-                            with cols[i // 30]:
-                                st.title(f"Bulan ke-{i//30 + 1}")
-                                for j in range(i, i + 30):
-                                    if j < len(denormalized_predictions):
-                                        st.write(
-                                            f"Hari ke-{j+1}: {denormalized_predictions[j]:.1f}"
-                                        )
-                    elif periode == "1 Tahun":
-                        cols_top = st.columns(6)
-                        cols_bottom = st.columns(6)
-
-                        for i in range(
-                            0, 360, 30
-                        ):  # Tampilkan hanya 12 bulan (360 hari)
-                            month_index = i // 30
-                            if month_index < 6:
-                                with cols_top[month_index]:
-                                    st.subheader(f"Bulan ke-{month_index + 1}")
-                                    for j in range(i, i + 30):
-                                        day_index = (
-                                            j % 30
-                                        )  # Hitung indeks hari dalam bulan
-                                        if j < len(denormalized_predictions):
-                                            st.write(
-                                                f"Hari ke-{day_index + 1}: {denormalized_predictions[j]:.1f}"
-                                            )
-                            else:
-                                bottom_index = month_index - 6
-                                with cols_bottom[bottom_index]:
-                                    st.subheader(f"Bulan ke-{month_index + 1}")
-                                    for j in range(i, i + 30):
-                                        day_index = (
-                                            j % 30
-                                        )  # Hitung indeks hari dalam bulan
-                                        if j < len(denormalized_predictions):
-                                            st.write(
-                                                f"Hari ke-{day_index + 1}: {denormalized_predictions[j]:.1f}"
-                                            )
 
     elif selected == "About Me":
         st.write("Normalita Eka Ariyanti \n (200411100084) \n Teknik Informatika")
