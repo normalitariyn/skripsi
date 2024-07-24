@@ -24,7 +24,7 @@ st.set_page_config(
     },
 )
 st.write(
-    """<h1>Aplikasi Peramalan Indeks Standar Pencemaran Udara di DKI Jakarta</h1>""",
+    """<h1>Aplikasi Peramalan Kadar Polutan Udara pada Indeks Standar Pencemaran Udara di DKI Jakarta</h1>""",
     unsafe_allow_html=True,
 )
 
